@@ -1,0 +1,131 @@
+# Safety Policy Configuration File
+# Safety scans Python dependencies against the Safety DB
+# Documentation: https://docs.safetycli.com/
+#
+# This file defines the security policy for dependency vulnerability scanning
+# including severity thresholds, ignored vulnerabilities, and output settings
+
+version: "3.0"
+
+# Security Policy Settings
+security:
+  # Severity threshold - vulnerabilities at or above this level will fail the build
+  # Options: "critical", "high", "medium", "low"
+  # Current policy: Fail on any vulnerability (CI validation handles this)
+  fail-scan-with-severity: "low"
+
+  # Continue on error - set to false to fail fast
+  continue-on-error: false
+
+  # Include remediation advice in output
+  remediation: true
+
+# Output Configuration
+output:
+  # Format for scan reports
+  # Options: "text", "json", "html", "spdx", "cyclonedx"
+  format: "text"
+
+  # Show full advisory details
+  detailed-output: true
+
+  # Include CVE IDs in output where available
+  include-cvss-data: true
+
+# Scanning Configuration
+scan:
+  # Scan targets
+  # Path to requirements file(s) to scan
+  requirements:
+    - requirements.txt
+
+  # Include development dependencies (if separate file exists)
+  # - requirements-dev.txt
+
+  # Maximum number of retries for API calls
+  max-retries: 3
+
+  # Timeout for API requests (seconds)
+  timeout: 60
+
+# Ignored Vulnerabilities
+# IMPORTANT: All ignored vulnerabilities MUST include:
+#   - Vulnerability ID (Safety ID, CVE, or GHSA)
+#   - Reason for ignoring (detailed justification)
+#   - Expires date (YYYY-MM-DD format, when to reconsider)
+#   - Package and version affected
+#
+# Example format:
+# ignore:
+#   - id: "CVE-2023-12345"
+#     reason: "Only affects Windows systems; our deployment is Linux-only"
+#     expires: "2026-06-01"
+#     package: "example-package"
+#     version: "==1.2.3"
+#
+ignore:
+  # Currently no vulnerabilities are ignored
+  # All findings must be addressed or explicitly documented here
+
+# Alert Configuration
+alerts:
+  # Notify on new vulnerabilities
+  notify-on-new: true
+
+  # Notify on severity changes
+  notify-on-update: true
+
+# Proxy Configuration (if needed)
+# proxy:
+#   host: "proxy.example.com"
+#   port: 8080
+#   protocol: "http"
+
+# Custom advisory sources (Safety Pro feature)
+# advisory-sources:
+#   - type: "custom"
+#     url: "https://internal-advisory-db.example.com"
+
+# Notes for Developers:
+# 1. Before ignoring a vulnerability, ensure you have:
+#    - Verified the vulnerability doesn't affect your use case
+#    - Documented the risk assessment
+#    - Set an appropriate expiry date (typically 3-6 months)
+#    - Obtained approval from security team (if applicable)
+#
+# 2. Regularly review ignored vulnerabilities:
+#    - Check expiry dates monthly
+#    - Re-evaluate when updating dependencies
+#    - Remove ignores when vulnerabilities are patched
+#
+# 3. Cross-reference with other scanners:
+#    - Compare findings with pip-audit results
+#    - Verify with Trivy filesystem scans
+#    - Check GitHub Security Advisories
+#
+# 4. For false positives:
+#    - Document why it's a false positive
+#    - Report to Safety DB for correction
+#    - Set a short expiry date (30-60 days)
+
+# Severity Level Definitions:
+# CRITICAL: Immediate action required
+#   - Actively exploited in the wild
+#   - Remote code execution vulnerabilities
+#   - Authentication bypasses
+#   - Privilege escalation with high impact
+#
+# HIGH: Address before next release
+#   - Significant security impact
+#   - Exploitable under common conditions
+#   - Data exposure or integrity issues
+#
+# MEDIUM: Address in current sprint
+#   - Moderate security impact
+#   - Requires specific conditions to exploit
+#   - Limited scope of impact
+#
+# LOW: Address during regular maintenance
+#   - Minor security concerns
+#   - Difficult to exploit
+#   - Limited or no real-world impact

@@ -1,0 +1,96 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ai-model-pipelines-example"
+version = "0.1.0"
+description = "AI model training pipeline with dependency vulnerability scanning"
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.8"
+keywords = ["machine-learning", "ai", "security", "vulnerability-scanning"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Security",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+
+# Core dependencies are defined in requirements.txt
+# This allows for compatibility with traditional pip workflows
+dependencies = []
+
+[project.optional-dependencies]
+# Security scanning tools for vulnerability detection
+security = [
+    "pip-audit>=2.6.0",      # PyPA official vulnerability scanner for Python packages
+    "safety>=3.0.0",         # SafetyCLI vulnerability scanner with Safety DB
+]
+
+# Development tools including security scanners and dependency management
+dev = [
+    "pip-audit>=2.6.0",
+    "safety>=3.0.0",
+    "pip-tools>=7.0.0",      # For generating and managing requirements lock files
+]
+
+[tool.pip-audit]
+# Configuration for pip-audit vulnerability scanning
+# pip-audit scans Python dependencies against the PyPI Advisory Database
+# Documentation: https://pypi.org/project/pip-audit/
+
+# Vulnerability service to use for scanning
+# Options: "pypi" (default, PyPI Advisory Database), "osv" (OSV database)
+vulnerability-service = "pypi"
+
+# Require hash checking (use with requirements_lock.txt for production)
+# Set to true when scanning requirements_lock.txt with --generate-hashes
+require-hashes = false
+
+# Output format for reports
+# Options: "columns", "json", "cyclonedx-json", "cyclonedx-xml"
+# Note: CLI can override this with --format flag
+format = "columns"
+
+# Index URL for package resolution
+# Default uses PyPI; can be customized for private registries
+# index-url = "https://pypi.org/simple"
+
+# Ignored vulnerabilities (with justification required)
+# Format: List of vulnerability IDs (CVE-YYYY-NNNNN or PYSEC-YYYY-NNN)
+# Each ignored vulnerability should be documented with:
+#   - Vulnerability ID
+#   - Justification (why it's safe to ignore)
+#   - Review date (when to reconsider)
+#   - Expiry date (when ignore should be removed)
+ignore-vulns = [
+    # Example format (currently no ignores):
+    # "CVE-2023-12345",  # Justification: Only affects Windows, we use Linux. Review: 2026-06-01
+]
+
+# Disable caching of vulnerability data (useful for CI to get latest)
+# Default is false (caching enabled)
+disable-pip = false
+
+# Aliases for package names (if packages are installed under different names)
+# aliases = []
+
+# SEVERITY POLICY:
+# - CRITICAL: Immediate action required, block all builds
+# - HIGH: Block builds, must be addressed before merge
+# - MEDIUM: Warning, should be addressed but doesn't block
+# - LOW: Informational, address during regular maintenance
+#
+# Current policy: Fail on any vulnerability (let CI validation handle failures)
+# To implement severity filtering in CI, use pip-audit CLI flags
+
+[tool.setuptools]
+# Use traditional requirements.txt for dependencies
+# This maintains compatibility with existing dependency management
+py-modules = []

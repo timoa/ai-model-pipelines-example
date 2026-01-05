@@ -1,0 +1,124 @@
+# Trivy Ignore File
+# Documentation: https://aquasecurity.github.io/trivy/latest/docs/configuration/filtering/
+#
+# This file contains vulnerability IDs that Trivy should ignore during scans.
+# Each ignored vulnerability MUST be documented with:
+#   - Vulnerability ID (CVE-YYYY-NNNNN, GHSA-xxxx-xxxx-xxxx, etc.)
+#   - Justification (why it's safe to ignore)
+#   - Expiry date (when to reconsider)
+#   - Affected package and version
+#
+# Format:
+#   # CVE-ID: Justification | Expires: YYYY-MM-DD | Package: name==version
+#   CVE-YYYY-NNNNN
+#
+# Examples:
+#   # CVE-2023-12345: Only affects Windows systems; deployment is Linux-only | Expires: 2026-06-01 | Package: example==1.2.3
+#   CVE-2023-12345
+#
+#   # GHSA-xxxx-xxxx-xxxx: False positive - function not used in our codebase | Expires: 2026-03-01 | Package: another-pkg==2.0.0
+#   GHSA-xxxx-xxxx-xxxx
+
+# ============================================================================
+# CURRENTLY NO VULNERABILITIES ARE IGNORED
+# ============================================================================
+#
+# All vulnerability findings must be addressed or explicitly documented below.
+# Empty ignore file indicates zero-tolerance policy for unaddressed vulnerabilities.
+
+# ============================================================================
+# IGNORE POLICY AND BEST PRACTICES
+# ============================================================================
+#
+# Before adding an ignore entry:
+# 1. Verify the vulnerability is not exploitable in your context
+# 2. Document a clear justification (not just "won't fix")
+# 3. Set an expiry date (typically 30-90 days, max 6 months)
+# 4. Get security team approval if applicable
+# 5. Create a ticket to track proper remediation
+#
+# Common valid reasons for ignoring:
+# - Platform-specific vulnerability (e.g., Windows-only, we use Linux)
+# - Code path not used (with verification)
+# - False positive (reported to Trivy team)
+# - Waiting for upstream patch (with temporary mitigation in place)
+# - Breaking API changes in patch (planned upgrade)
+#
+# Invalid reasons for ignoring:
+# - "We'll fix it later" (create a ticket instead)
+# - "It's too hard to upgrade" (assess risk vs. effort)
+# - "We don't think it affects us" (needs proof, not assumption)
+# - "CI is failing" (vulnerabilities exist for a reason)
+#
+# Expiry date guidelines:
+# - CRITICAL: No ignores allowed, must fix immediately
+# - HIGH: Max 30 days, requires VP approval
+# - MEDIUM: Max 90 days, requires team lead approval
+# - LOW: Max 180 days, requires developer justification
+#
+# Regular review process:
+# 1. Weekly: Review all ignores, check for expired entries
+# 2. Monthly: Re-evaluate justifications, remove if patched
+# 3. Quarterly: Security audit of all active ignores
+# 4. Before major releases: Zero ignores goal
+
+# ============================================================================
+# SEVERITY-BASED FILTERING
+# ============================================================================
+#
+# Note: Severity-based filtering should be done in Trivy configuration
+# (trivy.yaml or CI pipeline flags) rather than ignoring specific CVEs.
+#
+# Trivy scan command examples:
+#   # Fail only on HIGH and CRITICAL
+#   trivy fs --severity HIGH,CRITICAL .
+#
+#   # Exit code 1 only on CRITICAL
+#   trivy fs --exit-code 1 --severity CRITICAL .
+#
+#   # Show all but only fail on HIGH+
+#   trivy fs --severity LOW,MEDIUM,HIGH,CRITICAL --exit-code 0 .
+#   trivy fs --severity HIGH,CRITICAL --exit-code 1 .
+
+# ============================================================================
+# FALSE POSITIVE REPORTING
+# ============================================================================
+#
+# If you encounter a false positive:
+# 1. Verify it's truly a false positive (test thoroughly)
+# 2. Report to Trivy: https://github.com/aquasecurity/trivy/issues
+# 3. Document here with "False Positive" label
+# 4. Set 30-day expiry to recheck after Trivy update
+# 5. Remove once Trivy database is corrected
+#
+# Example:
+#   # CVE-2023-99999: False Positive - affects v2.x only, we use v1.x | Expires: 2026-02-01 | Package: lib==1.5.0 | Reported: https://github.com/aquasecurity/trivy/issues/XXXXX
+#   CVE-2023-99999
+
+# ============================================================================
+# PACKAGE-SPECIFIC IGNORES
+# ============================================================================
+#
+# For package-specific ignores, use Trivy's .trivyignore.yaml format:
+#   vulnerabilities:
+#     - id: CVE-2023-12345
+#       paths:
+#         - "path/to/package"
+#
+# This file supports simple CVE ID listing for global ignores.
+# For more complex filtering, create a trivy.yaml configuration file.
+
+# ============================================================================
+# CROSS-SCANNER CORRELATION
+# ============================================================================
+#
+# When ignoring a vulnerability here, consider:
+# 1. Is it also reported by pip-audit or Safety?
+# 2. Should it be ignored in those scanners too?
+# 3. Are justifications consistent across all scanners?
+# 4. Have you updated all relevant ignore files?
+#
+# Maintain consistency:
+# - pyproject.toml [tool.pip-audit] ignore-vulns
+# - .safety-policy.yml ignore section
+# - .trivyignore (this file)

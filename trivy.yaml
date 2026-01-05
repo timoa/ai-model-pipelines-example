@@ -1,0 +1,229 @@
+# Trivy Configuration File
+# Documentation: https://aquasecurity.github.io/trivy/latest/docs/configuration/
+#
+# This file configures Trivy's scanning behavior, output formats, and policies.
+# It can be used with: trivy --config trivy.yaml [command]
+
+# Scan settings
+scan:
+  # Security checks to enable
+  # Options: vuln, misconfig, secret, license
+  security-checks:
+    - vuln      # Vulnerability scanning
+    - secret    # Secret detection (API keys, passwords, etc.)
+
+  # Skip files matching these patterns
+  skip-files:
+    - "**/*.md"
+    - "**/*.txt"
+    - ".git/**"
+
+  # Skip directories
+  skip-dirs:
+    - ".git"
+    - ".github"
+    - "__pycache__"
+    - "*.egg-info"
+    - ".pytest_cache"
+    - ".tox"
+
+# Vulnerability settings
+vulnerability:
+  # Vulnerability type to detect
+  # Options: os, library
+  type:
+    - library   # Focus on library/dependency vulnerabilities
+
+  # Severity levels to include in results
+  # Options: CRITICAL, HIGH, MEDIUM, LOW, UNKNOWN
+  severity:
+    - CRITICAL
+    - HIGH
+    - MEDIUM
+    - LOW
+
+# Output settings
+output:
+  # Output format
+  # Options: table, json, sarif, cyclonedx, spdx, github
+  format: table
+
+  # Output file (leave empty for stdout)
+  # file: trivy-results.json
+
+  # Template for custom output (when format is 'template')
+  # template: "@/path/to/template.tpl"
+
+# Report settings
+report:
+  # Report format
+  format: all
+
+  # Include vulnerability summary
+  summary: true
+
+# Cache settings
+cache:
+  # Cache directory
+  dir: "$HOME/.cache/trivy"
+
+  # Clear cache before scanning
+  clear: false
+
+# Database settings
+db:
+  # Skip database update
+  skip-update: false
+
+  # Database repository
+  repository: "ghcr.io/aquasecurity/trivy-db"
+
+# Exit code settings
+exit:
+  # Exit code when vulnerabilities are found
+  # 0: Never exit with error
+  # 1: Exit with error on any vulnerability
+  code: 1
+
+  # Exit code when errors occur during scan
+  on-error: 1
+
+# Timeout settings
+timeout:
+  # Timeout for each scan (e.g., "5m", "1h")
+  scan: 5m
+
+# Python-specific settings
+python:
+  # Enable Python package scanning
+  enabled: true
+
+  # Python package index
+  index-url: "https://pypi.org/simple"
+
+# Ignore settings
+ignore:
+  # Path to .trivyignore file
+  file: ".trivyignore"
+
+  # Ignore unfixed vulnerabilities
+  # Set to true to only report vulnerabilities with available fixes
+  unfixed: false
+
+# Severity-based policy
+# This defines what happens at each severity level
+severity-policy:
+  CRITICAL:
+    action: fail
+    message: "CRITICAL vulnerabilities found - immediate action required"
+  HIGH:
+    action: fail
+    message: "HIGH severity vulnerabilities found - must fix before merge"
+  MEDIUM:
+    action: warn
+    message: "MEDIUM severity vulnerabilities found - should be addressed"
+  LOW:
+    action: warn
+    message: "LOW severity vulnerabilities found - address during maintenance"
+
+# SBOM (Software Bill of Materials) settings
+sbom:
+  # Generate SBOM
+  enabled: false
+
+  # SBOM format: cyclonedx, spdx
+  # format: cyclonedx
+
+# License scanning settings (if enabled)
+license:
+  # License categories to flag
+  # Options: forbidden, restricted, reciprocal, notice, permissive, unencumbered, unknown
+  categories:
+    - forbidden
+    - restricted
+
+  # Specific licenses to flag (SPDX identifiers)
+  forbidden:
+    # - GPL-3.0
+    # - AGPL-3.0
+
+# Secret scanning settings
+secret:
+  # Secret scanning configuration file
+  # config: ".trivy-secret.yaml"
+
+  # Maximum file size to scan for secrets (in KB)
+  max-file-size: 1024
+
+# Offline mode
+offline: false
+
+# Quiet mode (suppress progress output)
+quiet: false
+
+# Debug mode
+debug: false
+
+# Insecure mode (skip TLS verification)
+insecure: false
+
+# Custom headers for HTTP requests
+# headers:
+#   - "Authorization: Bearer token"
+
+# ============================================================================
+# USAGE EXAMPLES
+# ============================================================================
+#
+# Scan filesystem with this config:
+#   trivy fs --config trivy.yaml .
+#
+# Scan specific requirements file:
+#   trivy fs --config trivy.yaml --scanners vuln requirements.txt
+#
+# Generate SARIF output for GitHub:
+#   trivy fs --config trivy.yaml --format sarif --output trivy-results.sarif .
+#
+# Scan with specific severity:
+#   trivy fs --config trivy.yaml --severity HIGH,CRITICAL .
+#
+# Scan and generate SBOM:
+#   trivy fs --config trivy.yaml --format cyclonedx --output sbom.json .
+
+# ============================================================================
+# CI/CD INTEGRATION
+# ============================================================================
+#
+# GitHub Actions:
+#   - name: Run Trivy vulnerability scanner
+#     uses: aquasecurity/trivy-action@master
+#     with:
+#       scan-type: 'fs'
+#       scan-ref: '.'
+#       trivy-config: 'trivy.yaml'
+#       format: 'sarif'
+#       output: 'trivy-results.sarif'
+#
+#   - name: Upload Trivy results to GitHub Security
+#     uses: github/codeql-action/upload-sarif@v2
+#     with:
+#       sarif_file: 'trivy-results.sarif'
+
+# ============================================================================
+# NOTES
+# ============================================================================
+#
+# 1. This configuration enforces a strict security policy:
+#    - CRITICAL and HIGH vulnerabilities fail the build
+#    - MEDIUM and LOW vulnerabilities generate warnings
+#
+# 2. Secret scanning is enabled to detect hardcoded credentials
+#
+# 3. Database is automatically updated before each scan
+#
+# 4. Results can be exported in multiple formats (SARIF, JSON, etc.)
+#
+# 5. For vulnerability-specific ignores, use .trivyignore file
+#
+# 6. This config is optimized for Python dependency scanning
+#    but can be extended for container and IaC scanning
