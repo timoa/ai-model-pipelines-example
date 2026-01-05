@@ -39,6 +39,6 @@ FROM python-deps AS runtime
 
 COPY . /workspace/
 
-ENV PYTHONPATH=/workspace:${PYTHONPATH}
+ENV PYTHONPATH=/workspace
 
 CMD ["/bin/bash"]
