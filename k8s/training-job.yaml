@@ -1,0 +1,133 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: gpt-training
+  namespace: ai-research
+  labels:
+    app: gpt-training
+    framework: pytorch
+spec:
+  backoffLimit: 3
+  completions: 1
+  parallelism: 1
+  template:
+    metadata:
+      labels:
+        app: gpt-training
+    spec:
+      restartPolicy: OnFailure
+      
+      nodeSelector:
+        nvidia.com/gpu.product: A100-SXM4-80GB
+      
+      tolerations:
+      - key: "nvidia.com/gpu"
+        operator: "Exists"
+        effect: "NoSchedule"
+      
+      volumes:
+      - name: checkpoint-storage
+        persistentVolumeClaim:
+          claimName: training-checkpoints
+      - name: data-storage
+        persistentVolumeClaim:
+          claimName: training-data
+      - name: dshm
+        emptyDir:
+          medium: Memory
+          sizeLimit: 32Gi
+      
+      initContainers:
+      - name: data-validator
+        image: ghcr.io/your-org/ai-research-platform-base:latest
+        command: ["/bin/bash", "-c"]
+        args:
+          - |
+            echo "Validating training data..."
+            if [ ! -f /data/train/train.bin ]; then
+              echo "Error: Training data not found"
+              exit 1
+            fi
+            echo "Data validation passed"
+        volumeMounts:
+        - name: data-storage
+          mountPath: /data
+      
+      containers:
+      - name: trainer
+        image: ghcr.io/your-org/ai-research-platform-training:latest
+        command: ["python", "src/train.py"]
+        args:
+          - "--config"
+          - "configs/train-small.yaml"
+        
+        resources:
+          requests:
+            cpu: "16"
+            memory: "128Gi"
+            nvidia.com/gpu: "8"
+          limits:
+            cpu: "32"
+            memory: "256Gi"
+            nvidia.com/gpu: "8"
+        
+        env:
+        - name: NCCL_DEBUG
+          value: "INFO"
+        - name: NCCL_SOCKET_IFNAME
+          value: "eth0"
+        - name: TORCH_DISTRIBUTED_DEBUG
+          value: "DETAIL"
+        - name: CUDA_VISIBLE_DEVICES
+          value: "0,1,2,3,4,5,6,7"
+        - name: MASTER_ADDR
+          value: "localhost"
+        - name: MASTER_PORT
+          value: "29500"
+        - name: WORLD_SIZE
+          value: "8"
+        - name: RANK
+          value: "0"
+        - name: LOCAL_RANK
+          value: "0"
+        - name: OMP_NUM_THREADS
+          value: "8"
+        
+        volumeMounts:
+        - name: checkpoint-storage
+          mountPath: /workspace/outputs
+        - name: data-storage
+          mountPath: /workspace/data
+        - name: dshm
+          mountPath: /dev/shm
+        
+        securityContext:
+          capabilities:
+            add:
+            - IPC_LOCK
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: training-checkpoints
+  namespace: ai-research
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: fast-ssd
+  resources:
+    requests:
+      storage: 500Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: training-data
+  namespace: ai-research
+spec:
+  accessModes:
+    - ReadOnlyMany
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 1Ti

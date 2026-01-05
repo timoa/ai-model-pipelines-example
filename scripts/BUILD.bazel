@@ -1,0 +1,49 @@
+load("@pip//:requirements.bzl", "requirement")
+
+py_binary(
+    name = "download_data",
+    srcs = ["download_data.py"],
+    deps = [
+        requirement("datasets"),
+    ],
+    visibility = ["//visibility:public"],
+)
+
+py_binary(
+    name = "tokenize_data",
+    srcs = ["tokenize_data.py"],
+    deps = [
+        requirement("datasets"),
+        requirement("transformers"),
+        requirement("numpy"),
+        requirement("tqdm"),
+    ],
+    visibility = ["//visibility:public"],
+)
+
+py_binary(
+    name = "split_data",
+    srcs = ["split_data.py"],
+    deps = [
+        requirement("numpy"),
+    ],
+    visibility = ["//visibility:public"],
+)
+
+py_binary(
+    name = "verify_reproducibility",
+    srcs = ["verify_reproducibility.py"],
+    deps = [
+        requirement("torch"),
+    ],
+    visibility = ["//visibility:public"],
+)
+
+py_binary(
+    name = "data_stats",
+    srcs = ["data_stats.py"],
+    deps = [
+        requirement("numpy"),
+    ],
+    visibility = ["//visibility:public"],
+)

@@ -1,0 +1,4 @@
+exports_files([
+    "smoke-test.yaml",
+    "train-small.yaml",
+])

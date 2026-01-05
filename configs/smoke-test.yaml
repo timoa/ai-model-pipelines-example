@@ -1,0 +1,38 @@
+model:
+  vocab_size: 50257
+  n_layer: 4
+  n_head: 4
+  n_embd: 256
+  block_size: 256
+  dropout: 0.1
+  bias: true
+
+data:
+  train_dir: "data/train"
+  eval_data: "data/val/val.bin"
+
+training:
+  batch_size: 4
+  max_epochs: 1
+  max_iters: 100
+  learning_rate: 1.0e-3
+  min_lr: 1.0e-4
+  weight_decay: 0.1
+  beta1: 0.9
+  beta2: 0.95
+  grad_clip: 1.0
+  warmup_iters: 10
+  lr_decay_iters: 100
+  gradient_accumulation_steps: 1
+  num_workers: 2
+  seed: 42
+  dtype: "float32"
+  log_interval: 10
+  eval_interval: 50
+  output_dir: "outputs/smoke-test"
+
+eval:
+  max_samples: 10
+  eval_prompts:
+    - "Once upon a time"
+    - "The quick brown fox"

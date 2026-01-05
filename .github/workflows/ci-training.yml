@@ -1,0 +1,160 @@
+name: CI - Model Training & Evaluation
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'configs/**'
+      - 'requirements*.txt'
+      - '.github/workflows/ci-training.yml'
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke-test:
+    name: Quick Validation (Smoke Test)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Bazel
+        uses: bazel-contrib/setup-bazel@0.8.1
+        with:
+          bazelisk-cache: true
+          disk-cache: ${{ github.workflow }}
+          repository-cache: true
+
+      - name: Cache CUDA kernels
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/torch_extensions
+          key: cuda-kernels-${{ runner.os }}-${{ hashFiles('src/**/*.py') }}
+          restore-keys: |
+            cuda-kernels-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements.txt
+
+      - name: Run smoke test training
+        run: |
+          python src/train.py --config configs/smoke-test.yaml
+        env:
+          PYTORCH_ENABLE_MPS_FALLBACK: 1
+
+      - name: Verify checkpoint created
+        run: |
+          if [ ! -d "outputs/smoke-test" ]; then
+            echo "Error: Output directory not created"
+            exit 1
+          fi
+          echo "Smoke test passed successfully"
+
+      - name: Upload training artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-test-outputs
+          path: outputs/smoke-test/
+          retention-days: 7
+
+  reproducibility-check:
+    name: Verify Deterministic Training
+    runs-on: ubuntu-latest
+    needs: smoke-test
+    timeout-minutes: 20
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements.txt
+
+      - name: Run first training
+        run: |
+          python src/train.py --config configs/smoke-test.yaml
+          mv outputs/smoke-test outputs/run1
+
+      - name: Run second training
+        run: |
+          python src/train.py --config configs/smoke-test.yaml
+          mv outputs/smoke-test outputs/run2
+
+      - name: Compare checkpoints
+        run: |
+          python scripts/verify_reproducibility.py \
+            --checkpoint1 outputs/run1/final_model.pt \
+            --checkpoint2 outputs/run2/final_model.pt
+
+  lint-and-format:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install linting tools
+        run: |
+          pip install black ruff mypy
+
+      - name: Run Black
+        run: black --check src/
+
+      - name: Run Ruff
+        run: ruff check src/
+
+      - name: Run MyPy
+        run: mypy src/ --ignore-missing-imports
+
+  bazel-build:
+    name: Bazel Build & Test
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Bazel
+        uses: bazel-contrib/setup-bazel@0.8.1
+        with:
+          bazelisk-cache: true
+          disk-cache: ${{ github.workflow }}
+          repository-cache: true
+
+      - name: Build all targets
+        run: bazel build //...
+
+      - name: Run tests
+        run: bazel test //... --test_output=errors

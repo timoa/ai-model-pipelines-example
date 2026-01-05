@@ -1,0 +1,79 @@
+name: Data Pipeline
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      dataset:
+        description: 'Dataset to process'
+        required: true
+        default: 'openwebtext'
+        type: choice
+        options:
+          - openwebtext
+          - wikipedia
+          - custom
+
+jobs:
+  tokenize-dataset:
+    name: Tokenize Dataset
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Download dataset
+        run: |
+          python scripts/download_data.py \
+            --dataset ${{ github.event.inputs.dataset || 'openwebtext' }} \
+            --output-dir data/raw
+
+      - name: Tokenize dataset
+        run: |
+          python scripts/tokenize_data.py \
+            --input-dir data/raw \
+            --output-dir data/tokenized \
+            --tokenizer gpt2 \
+            --num-workers 4
+
+      - name: Create train/val split
+        run: |
+          python scripts/split_data.py \
+            --input-dir data/tokenized \
+            --train-dir data/train \
+            --val-dir data/val \
+            --val-split 0.05
+
+      - name: Upload processed data
+        uses: actions/upload-artifact@v4
+        with:
+          name: processed-data-${{ github.event.inputs.dataset || 'openwebtext' }}
+          path: data/
+          retention-days: 30
+
+      - name: Generate data statistics
+        run: |
+          python scripts/data_stats.py \
+            --data-dir data/train \
+            --output results/data_stats.json
+
+      - name: Upload statistics
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-statistics
+          path: results/data_stats.json
+          retention-days: 90

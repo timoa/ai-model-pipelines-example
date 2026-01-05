@@ -1,0 +1,26 @@
+load("@pip//:requirements.bzl", "requirement")
+
+py_binary(
+    name = "train",
+    srcs = ["train.py"],
+    deps = [
+        "//src/data",
+        "//src/models",
+        requirement("torch"),
+        requirement("pyyaml"),
+    ],
+    visibility = ["//visibility:public"],
+)
+
+py_binary(
+    name = "evaluate",
+    srcs = ["evaluate.py"],
+    deps = [
+        "//src/models",
+        requirement("torch"),
+        requirement("transformers"),
+        requirement("datasets"),
+        requirement("pyyaml"),
+    ],
+    visibility = ["//visibility:public"],
+)

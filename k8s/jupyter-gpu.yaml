@@ -1,0 +1,109 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: jupyter-gpu
+  namespace: ai-research
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8888
+    targetPort: 8888
+    protocol: TCP
+    name: jupyter
+  selector:
+    app: jupyter-gpu
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jupyter-gpu
+  namespace: ai-research
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jupyter-gpu
+  template:
+    metadata:
+      labels:
+        app: jupyter-gpu
+    spec:
+      nodeSelector:
+        nvidia.com/gpu.product: A100-SXM4-80GB
+      
+      tolerations:
+      - key: "nvidia.com/gpu"
+        operator: "Exists"
+        effect: "NoSchedule"
+      
+      volumes:
+      - name: workspace
+        persistentVolumeClaim:
+          claimName: jupyter-workspace
+      - name: data-storage
+        persistentVolumeClaim:
+          claimName: training-data
+      
+      containers:
+      - name: jupyter
+        image: ghcr.io/your-org/ai-research-platform-base:latest
+        command: ["jupyter", "lab"]
+        args:
+          - "--ip=0.0.0.0"
+          - "--port=8888"
+          - "--no-browser"
+          - "--allow-root"
+          - "--NotebookApp.token=''"
+          - "--NotebookApp.password=''"
+        
+        resources:
+          requests:
+            cpu: "4"
+            memory: "32Gi"
+            nvidia.com/gpu: "1"
+          limits:
+            cpu: "8"
+            memory: "64Gi"
+            nvidia.com/gpu: "1"
+        
+        env:
+        - name: JUPYTER_ENABLE_LAB
+          value: "yes"
+        
+        volumeMounts:
+        - name: workspace
+          mountPath: /workspace
+        - name: data-storage
+          mountPath: /data
+          readOnly: true
+        
+        ports:
+        - containerPort: 8888
+          name: jupyter
+        
+        livenessProbe:
+          httpGet:
+            path: /api
+            port: 8888
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        
+        readinessProbe:
+          httpGet:
+            path: /api
+            port: 8888
+          initialDelaySeconds: 10
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jupyter-workspace
+  namespace: ai-research
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: fast-ssd
+  resources:
+    requests:
+      storage: 100Gi

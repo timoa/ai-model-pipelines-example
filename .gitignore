@@ -205,3 +205,24 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# AI Research Platform specific
+outputs/
+data/
+checkpoints/
+results/
+*.bin
+*.pt
+*.pth
+*.ckpt
+profile_trace.json
+
+# Bazel
+bazel-*
+.bazel-cache/
+
+# Docker
+.dockerignore
+
+# Auto Claude data directory
+.auto-claude/

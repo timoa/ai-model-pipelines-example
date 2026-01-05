@@ -1,0 +1,40 @@
+model:
+  vocab_size: 50257
+  n_layer: 12
+  n_head: 12
+  n_embd: 768
+  block_size: 1024
+  dropout: 0.1
+  bias: true
+
+data:
+  train_dir: "data/train"
+  eval_data: "data/val/val.bin"
+
+training:
+  batch_size: 12
+  max_epochs: 10
+  max_iters: 100000
+  learning_rate: 6.0e-4
+  min_lr: 6.0e-5
+  weight_decay: 0.1
+  beta1: 0.9
+  beta2: 0.95
+  grad_clip: 1.0
+  warmup_iters: 2000
+  lr_decay_iters: 100000
+  gradient_accumulation_steps: 4
+  num_workers: 4
+  seed: 42
+  dtype: "bfloat16"
+  log_interval: 100
+  eval_interval: 2000
+  output_dir: "outputs/gpt-small"
+
+eval:
+  max_samples: 500
+  eval_prompts:
+    - "Once upon a time"
+    - "In a galaxy far, far away"
+    - "The meaning of life is"
+    - "Artificial intelligence will"

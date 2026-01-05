@@ -1,0 +1,5 @@
+exports_files([
+    "training-job.yaml",
+    "distributed-training.yaml",
+    "jupyter-gpu.yaml",
+])

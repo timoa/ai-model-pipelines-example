@@ -1,0 +1,141 @@
+apiVersion: kubeflow.org/v1
+kind: PyTorchJob
+metadata:
+  name: gpt-distributed-training
+  namespace: ai-research
+spec:
+  pytorchReplicaSpecs:
+    Master:
+      replicas: 1
+      restartPolicy: OnFailure
+      template:
+        metadata:
+          labels:
+            app: gpt-training
+            role: master
+        spec:
+          nodeSelector:
+            nvidia.com/gpu.product: A100-SXM4-80GB
+          
+          tolerations:
+          - key: "nvidia.com/gpu"
+            operator: "Exists"
+            effect: "NoSchedule"
+          
+          volumes:
+          - name: checkpoint-storage
+            persistentVolumeClaim:
+              claimName: training-checkpoints
+          - name: data-storage
+            persistentVolumeClaim:
+              claimName: training-data
+          - name: dshm
+            emptyDir:
+              medium: Memory
+              sizeLimit: 64Gi
+          
+          containers:
+          - name: pytorch
+            image: ghcr.io/your-org/ai-research-platform-training:latest
+            command: ["python", "src/train.py"]
+            args:
+              - "--config"
+              - "configs/train-small.yaml"
+            
+            resources:
+              requests:
+                cpu: "16"
+                memory: "128Gi"
+                nvidia.com/gpu: "8"
+              limits:
+                cpu: "32"
+                memory: "256Gi"
+                nvidia.com/gpu: "8"
+            
+            env:
+            - name: NCCL_DEBUG
+              value: "INFO"
+            - name: NCCL_SOCKET_IFNAME
+              value: "eth0"
+            - name: NCCL_IB_DISABLE
+              value: "0"
+            - name: NCCL_NET_GDR_LEVEL
+              value: "5"
+            
+            volumeMounts:
+            - name: checkpoint-storage
+              mountPath: /workspace/outputs
+            - name: data-storage
+              mountPath: /workspace/data
+            - name: dshm
+              mountPath: /dev/shm
+            
+            ports:
+            - containerPort: 29500
+              name: master
+    
+    Worker:
+      replicas: 3
+      restartPolicy: OnFailure
+      template:
+        metadata:
+          labels:
+            app: gpt-training
+            role: worker
+        spec:
+          nodeSelector:
+            nvidia.com/gpu.product: A100-SXM4-80GB
+          
+          tolerations:
+          - key: "nvidia.com/gpu"
+            operator: "Exists"
+            effect: "NoSchedule"
+          - key: "node.kubernetes.io/spot"
+            operator: "Exists"
+            effect: "NoSchedule"
+          
+          volumes:
+          - name: checkpoint-storage
+            persistentVolumeClaim:
+              claimName: training-checkpoints
+          - name: data-storage
+            persistentVolumeClaim:
+              claimName: training-data
+          - name: dshm
+            emptyDir:
+              medium: Memory
+              sizeLimit: 64Gi
+          
+          containers:
+          - name: pytorch
+            image: ghcr.io/your-org/ai-research-platform-training:latest
+            command: ["python", "src/train.py"]
+            args:
+              - "--config"
+              - "configs/train-small.yaml"
+            
+            resources:
+              requests:
+                cpu: "16"
+                memory: "128Gi"
+                nvidia.com/gpu: "8"
+              limits:
+                cpu: "32"
+                memory: "256Gi"
+                nvidia.com/gpu: "8"
+            
+            env:
+            - name: NCCL_DEBUG
+              value: "INFO"
+            - name: NCCL_SOCKET_IFNAME
+              value: "eth0"
+            - name: NCCL_IB_DISABLE
+              value: "0"
+            
+            volumeMounts:
+            - name: checkpoint-storage
+              mountPath: /workspace/outputs
+            - name: data-storage
+              mountPath: /workspace/data
+            - name: dshm
+              mountPath: /dev/shm
