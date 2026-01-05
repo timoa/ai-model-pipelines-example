@@ -226,3 +226,5 @@ bazel-*
 
 # Auto Claude data directory
 .auto-claude/
+.worktrees
+.claude_settings.json
