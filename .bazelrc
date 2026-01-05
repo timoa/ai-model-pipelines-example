@@ -1,23 +1,28 @@
+# Build options
 build --enable_platform_specific_config
 build --incompatible_strict_action_env
+build --enable_bzlmod
 
 build:linux --cxxopt=-std=c++17
 build:macos --cxxopt=-std=c++17
 
 build --repo_env=PYTHON_BIN_PATH=/usr/bin/python3
 
-test --test_output=errors
-test --test_summary=detailed
-
 build --color=yes
 build --curses=yes
 build --show_progress_rate_limit=0.5
 
+build --disk_cache=~/.cache/bazel
+
+# Test options
+test --test_output=errors
+test --test_summary=detailed
+
+# Common settings
+common --enable_platform_specific_config
 common --experimental_repo_remote_exec
 
 build:ci --loading_phase_threads=1
 build:ci --jobs=2
 build:ci --verbose_failures
 build:ci --test_output=all
-
-build --disk_cache=~/.cache/bazel
