@@ -8,9 +8,10 @@ We take the security of our AI model pipeline project seriously. If you discover
 
 **Please DO NOT report security vulnerabilities through public GitHub issues.**
 
-Instead, please report them by emailing **security@example.com** (replace with your actual security contact).
+Instead, please report them by emailing **dev[@]timoa.com**.
 
 Include the following information in your report:
+
 - **Description**: Clear description of the vulnerability
 - **Impact**: Potential impact and attack scenarios
 - **Reproduction**: Step-by-step instructions to reproduce the issue
@@ -55,6 +56,7 @@ Every pull request and push to main is scanned by:
 - **[Trivy](https://aquasecurity.github.io/trivy/)**: Multi-purpose scanner that checks filesystem, dependencies, and configurations for vulnerabilities
 
 All scan results are:
+
 - Uploaded as workflow artifacts (90-day retention)
 - Integrated with GitHub Security tab via SARIF format
 - Validated to fail builds on detected vulnerabilities
@@ -62,6 +64,7 @@ All scan results are:
 #### Scheduled Scanning
 
 In addition to CI scans, we run **daily scheduled scans** at 2 AM UTC to detect newly disclosed vulnerabilities in our existing dependencies, even when code hasn't changed. These scans:
+
 - Monitor the main branch continuously
 - Create GitHub issues when new vulnerabilities are discovered
 - Provide ongoing security monitoring between development cycles
@@ -73,6 +76,7 @@ For detailed technical configuration, see [docs/SECURITY_SCANNING.md](docs/SECUR
 #### Pinned Dependencies
 
 We maintain strict dependency management:
+
 - **requirements.txt**: Direct dependencies with version pins for reproducibility
 - **requirements_lock.txt**: Complete dependency tree with SHA256 hashes for integrity verification
 - **pyproject.toml**: Project metadata and development tool configurations
@@ -104,6 +108,7 @@ See [docs/SECURITY_SCANNING.md](docs/SECURITY_SCANNING.md) for the complete exce
 #### CI/CD Pipeline
 
 Our GitHub Actions workflows:
+
 - Use pinned action versions (e.g., `actions/checkout@v4`, not `@main`)
 - Run with minimal permissions (read-only by default)
 - Validate all dependencies before use
@@ -120,6 +125,7 @@ Our GitHub Actions workflows:
 ### Secure Coding Practices
 
 We follow secure coding practices including:
+
 - Input validation and sanitization
 - Least privilege principles
 - Defense in depth
@@ -140,6 +146,7 @@ As this is an active development project, we only support the latest main branch
 ## Security Advisories
 
 Security advisories are published through:
+
 - GitHub Security Advisories (for this repository)
 - Release notes (for security-related releases)
 - Email notifications (for registered security contacts)
@@ -164,6 +171,7 @@ Our security posture depends on the security of our dependencies. We use:
 - **Utilities**: requests, pydantic
 
 All dependencies are:
+
 - Scanned for known vulnerabilities
 - Monitored for security advisories
 - Updated regularly with security patches
@@ -190,7 +198,8 @@ See `requirements.txt` and `requirements_lock.txt` for the complete dependency l
 ## Contact
 
 For security-related questions or concerns:
-- **Email**: security@example.com (replace with your actual security contact)
+
+- **Email**: dev[@]timoa.com
 - **GitHub Security Advisories**: Use the "Security" tab to privately report vulnerabilities
 - **General Issues**: Non-security bugs can be reported via GitHub Issues
 

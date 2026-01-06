@@ -27,11 +27,13 @@ ignore-vulns = []
 ```
 
 **Key Settings:**
+
 - `vulnerability-service`: Which database to use (pypi, osv)
 - `require-hashes`: Enable for production with requirements_lock.txt
 - `ignore-vulns`: List of CVE IDs to ignore (with justification)
 
 **Usage:**
+
 ```bash
 # Scan requirements.txt
 pip-audit --requirement requirements.txt
@@ -62,11 +64,13 @@ ignore: []
 ```
 
 **Key Settings:**
+
 - `fail-scan-with-severity`: Minimum severity to fail builds (low, medium, high, critical)
 - `ignore`: List of ignored vulnerabilities with justification
 - `remediation`: Include fix recommendations in output
 
 **Usage:**
+
 ```bash
 # Scan with policy file
 safety check --file requirements.txt
@@ -81,10 +85,12 @@ safety check --package numpy==1.24.0
 ### 3. Trivy Configuration (`trivy.yaml`, `.trivyignore`)
 
 Trivy uses two configuration files:
+
 - `trivy.yaml`: Main configuration (scan settings, output format, policies)
 - `.trivyignore`: Vulnerability IDs to ignore
 
 **Key Settings (trivy.yaml):**
+
 ```yaml
 scan:
   security-checks:
@@ -101,12 +107,14 @@ exit:
 ```
 
 **Ignore Format (.trivyignore):**
+
 ```
 # CVE-ID: Justification | Expires: YYYY-MM-DD | Package: name==version
 CVE-2023-12345
 ```
 
 **Usage:**
+
 ```bash
 # Scan filesystem with config
 trivy fs --config trivy.yaml .
@@ -126,7 +134,7 @@ trivy fs --severity HIGH,CRITICAL .
 All scanners use consistent severity classifications:
 
 | Severity | Description | Response Time | Action |
-|----------|-------------|---------------|--------|
+| -------- | ----------- | ------------- | ------ |
 | **CRITICAL** | Actively exploited, RCE, auth bypass | Immediate | Block builds, patch ASAP |
 | **HIGH** | Significant impact, commonly exploitable | 1 week | Block merges, must fix |
 | **MEDIUM** | Moderate impact, specific conditions | 1 month | Warning, plan fix |
@@ -137,6 +145,7 @@ All scanners use consistent severity classifications:
 ### When to Ignore
 
 Only ignore vulnerabilities when:
+
 1. **Platform-specific**: Vulnerability doesn't affect your platform (e.g., Windows-only, you use Linux)
 2. **Code path unused**: Affected functionality is not used (verify thoroughly)
 3. **False positive**: Confirmed false positive (report to scanner maintainers)
@@ -145,6 +154,7 @@ Only ignore vulnerabilities when:
 ### How to Ignore
 
 #### pip-audit (pyproject.toml)
+
 ```toml
 [tool.pip-audit]
 ignore-vulns = [
@@ -154,6 +164,7 @@ ignore-vulns = [
 ```
 
 #### Safety (.safety-policy.yml)
+
 ```yaml
 ignore:
   - id: "CVE-2023-12345"
@@ -164,7 +175,8 @@ ignore:
 ```
 
 #### Trivy (.trivyignore)
-```
+
+```bash
 # CVE-2023-12345: Only affects Windows | Expires: 2026-06-01 | Package: pkg==1.0.0
 CVE-2023-12345
 ```
@@ -172,6 +184,7 @@ CVE-2023-12345
 ### Required Documentation
 
 Every ignored vulnerability **MUST** include:
+
 1. **Vulnerability ID**: CVE or vulnerability identifier
 2. **Justification**: Detailed reason why it's safe to ignore
 3. **Expiry Date**: When to reconsider (max 6 months)
@@ -197,6 +210,7 @@ jobs:
 ### Build Failure Policy
 
 Builds fail when:
+
 - Any vulnerability is detected (current strict policy)
 - Severity threshold is exceeded (configurable)
 - Scan errors occur (network issues, invalid config)
@@ -204,6 +218,7 @@ Builds fail when:
 ### Scan Artifacts
 
 All scan results are saved as workflow artifacts:
+
 - `pip-audit-results.txt` (human-readable)
 - `pip-audit-results.json` (machine-readable)
 - `pip-audit-results.sarif` (uploaded to GitHub Security tab)
@@ -273,28 +288,33 @@ code pip-audit.sarif
 ### Safe Update Process
 
 1. **Scan current state**:
+
    ```bash
    pip-audit -r requirements.txt --format json > before.json
    ```
 
 2. **Update dependencies**:
+
    ```bash
    pip install --upgrade package-name
    pip freeze > requirements.txt
    ```
 
 3. **Regenerate lock file**:
+
    ```bash
    pip-compile --generate-hashes requirements.txt > requirements_lock.txt
    ```
 
 4. **Scan updated state**:
+
    ```bash
    pip-audit -r requirements.txt --format json > after.json
    safety check --file requirements.txt
    ```
 
 5. **Compare results**:
+
    ```bash
    diff before.json after.json
    ```
@@ -304,6 +324,7 @@ code pip-audit.sarif
 ### Scheduled Scans
 
 A separate scheduled workflow runs daily to detect newly disclosed vulnerabilities:
+
 - Runs against main branch
 - Creates GitHub issues for new findings
 - Sends notifications (if configured)
@@ -315,7 +336,8 @@ See `.github/workflows/scheduled-security-scan.yml` (Phase 5)
 If you discover a security vulnerability:
 
 1. **DO NOT** create a public GitHub issue
-2. Email security@example.com (or see SECURITY.md)
+
+2. Email dev[@]timoa.com (or see SECURITY.md)
 3. Include:
    - Package name and version
    - Vulnerability description
@@ -339,6 +361,7 @@ If you believe a finding is a false positive:
 ### Scan Failures
 
 **Database update errors:**
+
 ```bash
 # Clear cache and retry
 rm -rf ~/.cache/pip-audit
@@ -346,6 +369,7 @@ rm -rf ~/.cache/trivy
 ```
 
 **Timeout errors:**
+
 ```bash
 # Increase timeout in configuration
 # For Trivy: edit trivy.yaml timeout.scan
@@ -353,6 +377,7 @@ rm -rf ~/.cache/trivy
 ```
 
 **Network errors in CI:**
+
 ```bash
 # Check if proxy configuration is needed
 # Add retry logic in workflow
@@ -374,17 +399,20 @@ rm -rf ~/.cache/trivy
 ## Resources
 
 ### Documentation
+
 - pip-audit: https://pypi.org/project/pip-audit/
 - Safety: https://docs.safetycli.com/
 - Trivy: https://aquasecurity.github.io/trivy/
 
 ### Vulnerability Databases
+
 - PyPI Advisory Database: https://github.com/pypa/advisory-database
 - Safety DB: https://github.com/pyupio/safety-db
 - National Vulnerability Database: https://nvd.nist.gov/
 - GitHub Security Advisories: https://github.com/advisories
 
 ### Security Resources
+
 - OWASP Top 10: https://owasp.org/www-project-top-ten/
 - CWE: https://cwe.mitre.org/
 - CVE: https://cve.mitre.org/
@@ -392,6 +420,7 @@ rm -rf ~/.cache/trivy
 ## Support
 
 For questions or issues with security scanning:
+
 1. Check this documentation
 2. Review scanner documentation
 3. Check existing GitHub issues
