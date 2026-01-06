@@ -1,4 +1,4 @@
-FROM ai-research-platform-base:latest AS training
+FROM ghcr.io/timoa/ai-model-pipelines-example-base:main AS training
 
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --no-cache-dir \
