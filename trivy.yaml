@@ -67,9 +67,6 @@ cache:
   # Cache directory
   dir: "$HOME/.cache/trivy"
 
-  # Clear cache before scanning
-  clear: false
-
 # Database settings
 db:
   # Skip database update
