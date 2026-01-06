@@ -1,4 +1,4 @@
-FROM ai-research-platform-base:latest AS inference
+FROM ghcr.io/timoa/ai-model-pipelines-example-base:main AS inference
 
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --no-cache-dir \
