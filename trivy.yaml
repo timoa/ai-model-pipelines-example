@@ -27,13 +27,15 @@ scan:
     - ".pytest_cache"
     - ".tox"
 
-# Vulnerability settings
-vulnerability:
-  # Vulnerability type to detect
+# Package settings
+pkg:
+  # Package types to scan
   # Options: os, library
-  type:
+  types:
     - library   # Focus on library/dependency vulnerabilities
 
+# Vulnerability settings
+vulnerability:
   # Severity levels to include in results
   # Options: CRITICAL, HIGH, MEDIUM, LOW, UNKNOWN
   severity:
@@ -55,12 +57,7 @@ output:
   # template: "@/path/to/template.tpl"
 
 # Report settings
-report:
-  # Report format
-  format: all
-
-  # Include vulnerability summary
-  summary: true
+report: all
 
 # Cache settings
 cache:
