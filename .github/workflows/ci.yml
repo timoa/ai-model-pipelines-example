@@ -429,7 +429,7 @@ jobs:
 
       - name: Run Trivy vulnerability scanner (JSON output for validation)
         run: |
-          trivy fs --config trivy.yaml --format json --output trivy-results.json . || true
+          trivy fs --config trivy.yaml --format json --output trivy-results.json --timeout 15m . || true
         continue-on-error: true
 
       - name: Validate Trivy scan results

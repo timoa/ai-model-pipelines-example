@@ -6,9 +6,9 @@
 
 # Scan settings
 scan:
-  # Security checks to enable
+  # Scanners to enable
   # Options: vuln, misconfig, secret, license
-  security-checks:
+  scanners:
     - vuln      # Vulnerability scanning
     - secret    # Secret detection (API keys, passwords, etc.)
 
@@ -85,7 +85,7 @@ exit:
 # Timeout settings
 timeout:
   # Timeout for each scan (e.g., "5m", "1h")
-  scan: 5m
+  scan: 10m
 
 # Python-specific settings
 python:
