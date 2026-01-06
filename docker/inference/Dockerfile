@@ -11,8 +11,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /workspace
 
-COPY src/inference/ /workspace/inference/
-
 ENV VLLM_WORKER_MULTIPROC_METHOD=spawn
 
 EXPOSE 8000
