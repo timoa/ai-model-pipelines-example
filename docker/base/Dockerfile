@@ -30,7 +30,8 @@ FROM base AS python-deps
 COPY requirements.txt /tmp/requirements.txt
 
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --no-cache-dir -r /tmp/requirements.txt --index-url https://download.pytorch.org/whl/cu126
+    pip install --no-cache-dir torch==2.8.0 torchvision==0.23.0 --index-url https://download.pytorch.org/whl/cu126 && \
+    pip install --no-cache-dir -r /tmp/requirements.txt
 
 FROM python-deps AS runtime
 
