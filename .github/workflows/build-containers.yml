@@ -134,6 +134,35 @@ jobs:
             type=semver,pattern={{version}}
             type=sha,prefix={{branch}}-
 
+      - name: Free up disk space
+        run: |
+          echo "============================================"
+          echo "Disk space before cleanup:"
+          echo "============================================"
+          df -h
+          echo ""
+
+          echo "============================================"
+          echo "Removing unnecessary pre-installed software..."
+          echo "============================================"
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          echo "Pre-installed software removed"
+          echo ""
+
+          echo "============================================"
+          echo "Running docker system prune..."
+          echo "============================================"
+          docker system prune -af --volumes
+          echo "Docker cleanup complete"
+          echo ""
+
+          echo "============================================"
+          echo "Disk space after cleanup:"
+          echo "============================================"
+          df -h
       - name: Build and push training image
         uses: docker/build-push-action@v5
         with:
@@ -180,6 +209,35 @@ jobs:
             type=semver,pattern={{version}}
             type=sha,prefix={{branch}}-
 
+      - name: Free up disk space
+        run: |
+          echo "============================================"
+          echo "Disk space before cleanup:"
+          echo "============================================"
+          df -h
+          echo ""
+
+          echo "============================================"
+          echo "Removing unnecessary pre-installed software..."
+          echo "============================================"
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          echo "Pre-installed software removed"
+          echo ""
+
+          echo "============================================"
+          echo "Running docker system prune..."
+          echo "============================================"
+          docker system prune -af --volumes
+          echo "Docker cleanup complete"
+          echo ""
+
+          echo "============================================"
+          echo "Disk space after cleanup:"
+          echo "============================================"
+          df -h
       - name: Build and push inference image
         uses: docker/build-push-action@v5
         with:
