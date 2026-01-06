@@ -228,3 +228,4 @@ bazel-*
 .auto-claude/
 .worktrees
 .claude_settings.json
+.auto-claude-status
