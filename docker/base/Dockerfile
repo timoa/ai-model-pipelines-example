@@ -1,4 +1,4 @@
-FROM nvidia/cuda:12.1.0-cudnn8-devel-ubuntu22.04 AS base
+FROM nvidia/cuda:12.6.0-cudnn9-devel-ubuntu22.04 AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
@@ -30,10 +30,7 @@ FROM base AS python-deps
 COPY requirements.txt /tmp/requirements.txt
 
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --no-cache-dir torch==2.1.2 torchvision==0.16.2 --index-url https://download.pytorch.org/whl/cu121
-
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --no-cache-dir -r /tmp/requirements.txt
+    pip install --no-cache-dir -r /tmp/requirements.txt --index-url https://download.pytorch.org/whl/cu126
 
 FROM python-deps AS runtime
 

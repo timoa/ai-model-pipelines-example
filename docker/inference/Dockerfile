@@ -2,8 +2,7 @@ FROM ghcr.io/timoa/ai-model-pipelines-example-base:main AS inference
 
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --no-cache-dir \
-    vllm==0.2.7 \
-    triton==2.1.0
+    vllm==0.2.7
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libnuma-dev \
