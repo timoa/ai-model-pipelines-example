@@ -53,9 +53,17 @@ def train(config_path: str):
     torch.backends.cudnn.allow_tf32 = True
     device = f"cuda:{local_rank}" if torch.cuda.is_available() else "cpu"
     device_type = "cuda" if "cuda" in device else "cpu"
-    
-    ptdtype = {"float32": torch.float32, "bfloat16": torch.bfloat16, "float16": torch.float16}[config["training"]["dtype"]]
-    ctx = nullcontext() if device_type == "cpu" else torch.amp.autocast(device_type=device_type, dtype=ptdtype)
+
+    ptdtype = {
+        "float32": torch.float32,
+        "bfloat16": torch.bfloat16,
+        "float16": torch.float16,
+    }[config["training"]["dtype"]]
+    ctx = (
+        nullcontext()
+        if device_type == "cpu"
+        else torch.amp.autocast(device_type=device_type, dtype=ptdtype)
+    )
 
     model_config = GPTConfig(**config["model"])
     model = GPT(model_config)
@@ -65,7 +73,9 @@ def train(config_path: str):
         model = DDP(model, device_ids=[local_rank])
     raw_model = model.module if isinstance(model, DDP) else model
 
-    scaler = torch.amp.GradScaler(device_type, enabled=(config["training"]["dtype"] == "float16"))
+    scaler = torch.amp.GradScaler(
+        device_type, enabled=(config["training"]["dtype"] == "float16")
+    )
     optimizer = raw_model.configure_optimizers(
         weight_decay=config["training"]["weight_decay"],
         learning_rate=config["training"]["learning_rate"],
@@ -77,8 +87,12 @@ def train(config_path: str):
         data_dir=config["data"]["train_dir"],
         block_size=model_config.block_size,
     )
-    
-    sampler = DistributedSampler(train_dataset, num_replicas=world_size, rank=rank) if world_size > 1 else None
+
+    sampler = (
+        DistributedSampler(train_dataset, num_replicas=world_size, rank=rank)
+        if world_size > 1
+        else None
+    )
     train_loader = DataLoader(
         train_dataset,
         batch_size=config["training"]["batch_size"],
@@ -95,8 +109,12 @@ def train(config_path: str):
     running_loss = 0.0
 
     if is_master:
-        print(f"Training GPT model with {sum(p.numel() for p in model.parameters())/1e6:.2f}M parameters")
-        print(f"World size: {world_size}, Device: {device}, dtype: {config['training']['dtype']}")
+        print(
+            f"Training GPT model with {sum(p.numel() for p in model.parameters())/1e6:.2f}M parameters"
+        )
+        print(
+            f"World size: {world_size}, Device: {device}, dtype: {config['training']['dtype']}"
+        )
 
     model.train()
     t0 = time.time()
@@ -127,8 +145,10 @@ def train(config_path: str):
             if (batch_idx + 1) % config["training"]["gradient_accumulation_steps"] == 0:
                 if config["training"]["grad_clip"] != 0.0:
                     scaler.unscale_(optimizer)
-                    torch.nn.utils.clip_grad_norm_(model.parameters(), config["training"]["grad_clip"])
-                
+                    torch.nn.utils.clip_grad_norm_(
+                        model.parameters(), config["training"]["grad_clip"]
+                    )
+
                 scaler.step(optimizer)
                 scaler.update()
                 optimizer.zero_grad(set_to_none=True)
@@ -139,7 +159,9 @@ def train(config_path: str):
                 t1 = time.time()
                 dt = t1 - t0
                 lossf = running_loss / config["training"]["log_interval"]
-                print(f"iter {iter_num}: loss {lossf:.4f}, lr {lr:.6f}, time {dt*1000:.2f}ms")
+                print(
+                    f"iter {iter_num}: loss {lossf:.4f}, lr {lr:.6f}, time {dt*1000:.2f}ms"
+                )
                 running_loss = 0.0
                 t0 = t1
 
@@ -174,5 +196,5 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=str, required=True, help="Path to config file")
     args = parser.parse_args()
-    
+
     train(args.config)
