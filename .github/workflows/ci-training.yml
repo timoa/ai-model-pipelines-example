@@ -156,16 +156,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Generate complete lock file
-        run: |
-          pip install pip-tools
-          pip-compile requirements.txt --output-file=requirements_lock.txt --resolver=backtracking
-
       - name: Install Bazel
         uses: bazel-contrib/setup-bazel@0.8.1
         with:
@@ -178,11 +168,3 @@ jobs:
 
       - name: Run tests
         run: bazel test //... --test_output=errors
-
-      - name: Upload requirements lock file
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: requirements-lock
-          path: requirements_lock.txt
-          retention-days: 7
