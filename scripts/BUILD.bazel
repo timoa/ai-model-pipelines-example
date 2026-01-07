@@ -47,3 +47,12 @@ py_binary(
     ],
     visibility = ["//visibility:public"],
 )
+
+py_binary(
+    name = "generate_test_data",
+    srcs = ["generate_test_data.py"],
+    deps = [
+        requirement("numpy"),
+    ],
+    visibility = ["//visibility:public"],
+)

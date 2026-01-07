@@ -52,6 +52,11 @@ jobs:
           pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
           pip install -r requirements.txt
 
+      - name: Generate test data
+        run: |
+          python scripts/generate_test_data.py --output-dir data/train --num-tokens 10000
+          python scripts/generate_test_data.py --output-dir data/val --num-tokens 2000
+
       - name: Run smoke test training
         run: |
           python src/train.py --config configs/smoke-test.yaml
@@ -95,6 +100,11 @@ jobs:
           pip install --upgrade pip
           pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
           pip install -r requirements.txt
+
+      - name: Generate test data
+        run: |
+          python scripts/generate_test_data.py --output-dir data/train --num-tokens 10000
+          python scripts/generate_test_data.py --output-dir data/val --num-tokens 2000
 
       - name: Run first training
         run: |

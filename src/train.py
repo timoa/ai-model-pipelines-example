@@ -65,7 +65,7 @@ def train(config_path: str):
         model = DDP(model, device_ids=[local_rank])
     raw_model = model.module if isinstance(model, DDP) else model
 
-    scaler = torch.cuda.amp.GradScaler(enabled=(config["training"]["dtype"] == "float16"))
+    scaler = torch.amp.GradScaler(device_type, enabled=(config["training"]["dtype"] == "float16"))
     optimizer = raw_model.configure_optimizers(
         weight_decay=config["training"]["weight_decay"],
         learning_rate=config["training"]["learning_rate"],
