@@ -2,7 +2,7 @@ import argparse
 import torch
 import yaml
 from pathlib import Path
-from typing import Dict, List
+from typing import List
 import json
 
 from models.gpt import GPT, GPTConfig

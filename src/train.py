@@ -105,7 +105,6 @@ def train(config_path: str):
     output_dir.mkdir(parents=True, exist_ok=True)
 
     iter_num = 0
-    best_val_loss = 1e9
     running_loss = 0.0
 
     if is_master:
