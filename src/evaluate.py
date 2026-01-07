@@ -2,7 +2,7 @@ import argparse
 import torch
 import yaml
 from pathlib import Path
-from typing import List
+from typing import List, Dict, Any
 import json
 
 from models.gpt import GPT, GPTConfig
@@ -86,7 +86,7 @@ def run_evaluation(config_path: str, checkpoint_path: str, output_path: str):
         f"Model loaded: {sum(p.numel() for p in model.parameters())/1e6:.2f}M parameters"
     )
 
-    results = {}
+    results: Dict[str, Any] = {}
 
     if "eval_data" in config["data"]:
         print("\nEvaluating perplexity...")
