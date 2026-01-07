@@ -137,7 +137,7 @@ jobs:
 
       - name: Install linting tools
         run: |
-          pip install black ruff mypy
+          pip install black ruff mypy types-PyYAML
 
       - name: Run Black
         run: black --check src/
