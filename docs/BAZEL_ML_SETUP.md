@@ -91,16 +91,18 @@ bazel run //scripts:tokenize_data -- --input data/raw --output data/processed
 ### Linting and Testing
 
 ```bash
-# Run all tests
+# Run all tests (when test targets are defined)
 bazel test //...
 
 # Run specific tests
 bazel test //src/models:gpt_test
 
-# Linting with Bazel-managed tools (use absolute paths)
-bazel run @@rules_python~~pip~pip_311_black//:rules_python_wheel_entry_point_black -- --check $PWD/src/
-bazel run @@rules_python~~pip~pip_311_ruff//:rules_python_wheel_entry_point_ruff -- check $PWD/src/
-bazel run @@rules_python~~pip~pip_311_mypy//:rules_python_wheel_entry_point_mypy -- $PWD/src/ --ignore-missing-imports
+# Linting - use pip-installed tools directly
+# (Some tools like ruff are pre-compiled binaries and don't work well with Bazel's pip integration)
+pip install black ruff mypy types-PyYAML
+black --check src/
+ruff check src/
+mypy src/ --ignore-missing-imports
 ```
 
 ### Building Containers

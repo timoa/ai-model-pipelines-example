@@ -105,21 +105,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Bazel
-        uses: bazel-contrib/setup-bazel@0.8.1
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          bazelisk-cache: true
-          disk-cache: ${{ github.workflow }}
-          repository-cache: true
+          python-version: '3.11'
+
+      - name: Install linting tools
+        run: |
+          pip install black ruff mypy types-PyYAML
 
       - name: Run Black
-        run: bazel run @@rules_python~~pip~pip_311_black//:rules_python_wheel_entry_point_black -- --check $PWD/src/
+        run: black --check src/
 
       - name: Run Ruff
-        run: bazel run @@rules_python~~pip~pip_311_ruff//:rules_python_wheel_entry_point_ruff -- check $PWD/src/
+        run: ruff check src/
 
       - name: Run MyPy
-        run: bazel run @@rules_python~~pip~pip_311_mypy//:rules_python_wheel_entry_point_mypy -- $PWD/src/ --ignore-missing-imports
+        run: mypy src/ --ignore-missing-imports
 
   bazel-build:
     name: Bazel Build & Test
