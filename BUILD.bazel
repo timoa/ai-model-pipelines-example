@@ -1,4 +1,5 @@
 exports_files([
     "requirements.txt",
     "requirements_lock.txt",
+    "requirements_lock_cpu.txt",
 ])

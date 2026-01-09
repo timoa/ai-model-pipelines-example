@@ -25,12 +25,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-          cache: 'pip'
-
       - name: Install Bazel
         uses: bazel-contrib/setup-bazel@0.8.1
         with:
@@ -38,28 +32,14 @@ jobs:
           disk-cache: ${{ github.workflow }}
           repository-cache: true
 
-      - name: Cache CUDA kernels
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/torch_extensions
-          key: cuda-kernels-${{ runner.os }}-${{ hashFiles('src/**/*.py') }}
-          restore-keys: |
-            cuda-kernels-${{ runner.os }}-
-
-      - name: Install dependencies
-        run: |
-          pip install --upgrade pip
-          pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-          pip install -r requirements.txt
-
       - name: Generate test data
         run: |
-          python scripts/generate_test_data.py --output-dir data/train --num-tokens 10000
-          python scripts/generate_test_data.py --output-dir data/val --num-tokens 2000
+          bazel run //scripts:generate_test_data -- --output-dir data/train --num-tokens 10000
+          bazel run //scripts:generate_test_data -- --output-dir data/val --num-tokens 2000
 
       - name: Run smoke test training
         run: |
-          python src/train.py --config configs/smoke-test.yaml
+          bazel run //src:train -- --config configs/smoke-test.yaml
         env:
           PYTORCH_ENABLE_MPS_FALLBACK: 1
 
@@ -89,36 +69,31 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Install Bazel
+        uses: bazel-contrib/setup-bazel@0.8.1
         with:
-          python-version: '3.11'
-          cache: 'pip'
-
-      - name: Install dependencies
-        run: |
-          pip install --upgrade pip
-          pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-          pip install -r requirements.txt
+          bazelisk-cache: true
+          disk-cache: ${{ github.workflow }}
+          repository-cache: true
 
       - name: Generate test data
         run: |
-          python scripts/generate_test_data.py --output-dir data/train --num-tokens 10000
-          python scripts/generate_test_data.py --output-dir data/val --num-tokens 2000
+          bazel run //scripts:generate_test_data -- --output-dir data/train --num-tokens 10000
+          bazel run //scripts:generate_test_data -- --output-dir data/val --num-tokens 2000
 
       - name: Run first training
         run: |
-          python src/train.py --config configs/smoke-test.yaml
+          bazel run //src:train -- --config configs/smoke-test.yaml
           mv outputs/smoke-test outputs/run1
 
       - name: Run second training
         run: |
-          python src/train.py --config configs/smoke-test.yaml
+          bazel run //src:train -- --config configs/smoke-test.yaml
           mv outputs/smoke-test outputs/run2
 
       - name: Compare checkpoints
         run: |
-          python scripts/verify_reproducibility.py \
+          bazel run //scripts:verify_reproducibility -- \
             --checkpoint1 outputs/run1/final_model.pt \
             --checkpoint2 outputs/run2/final_model.pt
 
@@ -130,23 +105,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Install Bazel
+        uses: bazel-contrib/setup-bazel@0.8.1
         with:
-          python-version: '3.11'
-
-      - name: Install linting tools
-        run: |
-          pip install black ruff mypy types-PyYAML
+          bazelisk-cache: true
+          disk-cache: ${{ github.workflow }}
+          repository-cache: true
 
       - name: Run Black
-        run: black --check src/
+        run: bazel run @pip//black -- --check src/
 
       - name: Run Ruff
-        run: ruff check src/
+        run: bazel run @pip//ruff -- check src/
 
       - name: Run MyPy
-        run: mypy src/ --ignore-missing-imports
+        run: bazel run @pip//mypy -- src/ --ignore-missing-imports
 
   bazel-build:
     name: Bazel Build & Test
