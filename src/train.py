@@ -11,8 +11,8 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.utils.data import DataLoader, DistributedSampler
 import yaml
 
-from models.gpt import GPT, GPTConfig
-from data.dataset import TextDataset
+from src.models.gpt import GPT, GPTConfig
+from src.data.dataset import TextDataset
 
 
 def setup_distributed():

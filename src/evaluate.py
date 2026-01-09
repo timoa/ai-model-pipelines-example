@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import List, Dict, Any
 import json
 
-from models.gpt import GPT, GPTConfig
+from src.models.gpt import GPT, GPTConfig
 from transformers import AutoTokenizer
 
 
