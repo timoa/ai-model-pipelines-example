@@ -14,6 +14,20 @@ import yaml
 from src.models.gpt import GPT, GPTConfig
 from src.data.dataset import TextDataset
 
+try:
+    from python.runfiles import runfiles
+    r = runfiles.Create()
+    def resolve_path(path):
+        """Resolve path for Bazel runfiles or return original path."""
+        if r:
+            resolved = r.Rlocation(f"_main/{path}")
+            return resolved if resolved and os.path.exists(resolved) else path
+        return path
+except ImportError:
+    def resolve_path(path):
+        """Fallback when not running under Bazel."""
+        return path
+
 
 def setup_distributed():
     if "RANK" in os.environ and "WORLD_SIZE" in os.environ:
@@ -42,7 +56,8 @@ def get_lr(it, warmup_iters, learning_rate, lr_decay_iters, min_lr):
 
 
 def train(config_path: str):
-    with open(config_path, "r") as f:
+    resolved_config_path = resolve_path(config_path)
+    with open(resolved_config_path, "r") as f:
         config = yaml.safe_load(f)
 
     rank, world_size, local_rank = setup_distributed()

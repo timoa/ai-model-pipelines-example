@@ -102,7 +102,7 @@ bazel test //src/models:gpt_test
 pip install black ruff mypy types-PyYAML
 black --check src/
 ruff check src/
-mypy src/ --ignore-missing-imports
+mypy src/ --ignore-missing-imports --explicit-package-bases
 ```
 
 ### Building Containers

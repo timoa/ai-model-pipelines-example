@@ -1,4 +1,5 @@
 import argparse
+import os
 import torch
 import yaml
 from pathlib import Path
@@ -7,6 +8,20 @@ import json
 
 from src.models.gpt import GPT, GPTConfig
 from transformers import AutoTokenizer
+
+try:
+    from python.runfiles import runfiles
+    r = runfiles.Create()
+    def resolve_path(path):
+        """Resolve path for Bazel runfiles or return original path."""
+        if r:
+            resolved = r.Rlocation(f"_main/{path}")
+            return resolved if resolved and os.path.exists(resolved) else path
+        return path
+except ImportError:
+    def resolve_path(path):
+        """Fallback when not running under Bazel."""
+        return path
 
 
 def load_model(checkpoint_path: str, device: str) -> GPT:
@@ -74,7 +89,8 @@ def evaluate_generation(
 
 
 def run_evaluation(config_path: str, checkpoint_path: str, output_path: str):
-    with open(config_path, "r") as f:
+    resolved_config_path = resolve_path(config_path)
+    with open(resolved_config_path, "r") as f:
         config = yaml.safe_load(f)
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
