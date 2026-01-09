@@ -97,10 +97,10 @@ bazel test //...
 # Run specific tests
 bazel test //src/models:gpt_test
 
-# Linting with Bazel-managed tools
-bazel run @@rules_python~~pip~pip_311_black//:rules_python_wheel_entry_point_black -- --check src/
-bazel run @@rules_python~~pip~pip_311_ruff//:rules_python_wheel_entry_point_ruff -- check src/
-bazel run @@rules_python~~pip~pip_311_mypy//:rules_python_wheel_entry_point_mypy -- src/ --ignore-missing-imports
+# Linting with Bazel-managed tools (use absolute paths)
+bazel run @@rules_python~~pip~pip_311_black//:rules_python_wheel_entry_point_black -- --check $PWD/src/
+bazel run @@rules_python~~pip~pip_311_ruff//:rules_python_wheel_entry_point_ruff -- check $PWD/src/
+bazel run @@rules_python~~pip~pip_311_mypy//:rules_python_wheel_entry_point_mypy -- $PWD/src/ --ignore-missing-imports
 ```
 
 ### Building Containers
