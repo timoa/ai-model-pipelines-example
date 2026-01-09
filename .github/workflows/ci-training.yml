@@ -113,13 +113,13 @@ jobs:
           repository-cache: true
 
       - name: Run Black
-        run: bazel run @pip//black -- --check src/
+        run: bazel run @pip//black:rules_python_wheel_entry_point_black -- --check src/
 
       - name: Run Ruff
-        run: bazel run @pip//ruff -- check src/
+        run: bazel run @pip//ruff:rules_python_wheel_entry_point_ruff -- check src/
 
       - name: Run MyPy
-        run: bazel run @pip//mypy -- src/ --ignore-missing-imports
+        run: bazel run @pip//mypy:rules_python_wheel_entry_point_mypy -- src/ --ignore-missing-imports
 
   bazel-build:
     name: Bazel Build & Test
