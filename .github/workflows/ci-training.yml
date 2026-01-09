@@ -48,7 +48,7 @@ jobs:
 
       - name: Run smoke test training
         run: |
-          bazel run //src:train -- --config configs/smoke-test.yaml
+          bazel run --spawn_strategy=local //src:train -- --config configs/smoke-test.yaml
         env:
           PYTORCH_ENABLE_MPS_FALLBACK: 1
 
@@ -101,17 +101,17 @@ jobs:
 
       - name: Run first training
         run: |
-          bazel run //src:train -- --config configs/smoke-test.yaml
+          bazel run --spawn_strategy=local //src:train -- --config configs/smoke-test.yaml
           mv outputs/smoke-test outputs/run1
 
       - name: Run second training
         run: |
-          bazel run //src:train -- --config configs/smoke-test.yaml
+          bazel run --spawn_strategy=local //src:train -- --config configs/smoke-test.yaml
           mv outputs/smoke-test outputs/run2
 
       - name: Compare checkpoints
         run: |
-          bazel run //scripts:verify_reproducibility -- \
+          bazel run --spawn_strategy=local //scripts:verify_reproducibility -- \
             --checkpoint1 outputs/run1/final_model.pt \
             --checkpoint2 outputs/run2/final_model.pt
 
