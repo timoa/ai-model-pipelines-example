@@ -20,7 +20,7 @@ jobs:
     name: Quick Validation (Smoke Test)
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -64,7 +64,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: smoke-test
     timeout-minutes: 20
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -100,7 +100,7 @@ jobs:
   lint-and-format:
     name: Code Quality Checks
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -126,7 +126,7 @@ jobs:
   bazel-build:
     name: Bazel Build & Test
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

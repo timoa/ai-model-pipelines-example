@@ -6,12 +6,12 @@ from pathlib import Path
 def generate_test_data(output_dir: Path, num_tokens: int = 10000):
     """Generate minimal test data for smoke testing."""
     output_dir.mkdir(parents=True, exist_ok=True)
-    
+
     tokens = np.random.randint(0, 50257, size=num_tokens, dtype=np.uint16)
-    
+
     output_file = output_dir / "data.bin"
     tokens.tofile(str(output_file))
-    
+
     print(f"Generated {num_tokens:,} random tokens")
     print(f"Saved to {output_file}")
     print(f"File size: {output_file.stat().st_size / 1024:.2f} KB")

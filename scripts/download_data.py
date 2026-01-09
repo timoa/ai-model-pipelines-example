@@ -6,7 +6,7 @@ from datasets import load_dataset
 def download_openwebtext(output_dir: Path):
     print("Downloading OpenWebText dataset...")
     dataset = load_dataset("openwebtext", split="train")
-    
+
     output_dir.mkdir(parents=True, exist_ok=True)
     dataset.save_to_disk(str(output_dir / "openwebtext"))
     print(f"Dataset saved to {output_dir / 'openwebtext'}")
@@ -15,7 +15,7 @@ def download_openwebtext(output_dir: Path):
 def download_wikipedia(output_dir: Path):
     print("Downloading Wikipedia dataset...")
     dataset = load_dataset("wikipedia", "20220301.en", split="train")
-    
+
     output_dir.mkdir(parents=True, exist_ok=True)
     dataset.save_to_disk(str(output_dir / "wikipedia"))
     print(f"Dataset saved to {output_dir / 'wikipedia'}")

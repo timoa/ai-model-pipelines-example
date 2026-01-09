@@ -30,12 +30,12 @@ spec:
     spec:
       nodeSelector:
         nvidia.com/gpu.product: A100-SXM4-80GB
-      
+
       tolerations:
       - key: "nvidia.com/gpu"
         operator: "Exists"
         effect: "NoSchedule"
-      
+
       volumes:
       - name: workspace
         persistentVolumeClaim:
@@ -43,7 +43,7 @@ spec:
       - name: data-storage
         persistentVolumeClaim:
           claimName: training-data
-      
+
       containers:
       - name: jupyter
         image: ghcr.io/your-org/ai-research-platform-base:latest
@@ -55,7 +55,7 @@ spec:
           - "--allow-root"
           - "--NotebookApp.token=''"
           - "--NotebookApp.password=''"
-        
+
         resources:
           requests:
             cpu: "4"
@@ -65,29 +65,29 @@ spec:
             cpu: "8"
             memory: "64Gi"
             nvidia.com/gpu: "1"
-        
+
         env:
         - name: JUPYTER_ENABLE_LAB
           value: "yes"
-        
+
         volumeMounts:
         - name: workspace
           mountPath: /workspace
         - name: data-storage
           mountPath: /data
           readOnly: true
-        
+
         ports:
         - containerPort: 8888
           name: jupyter
-        
+
         livenessProbe:
           httpGet:
             path: /api
             port: 8888
           initialDelaySeconds: 30
           periodSeconds: 10
-        
+
         readinessProbe:
           httpGet:
             path: /api

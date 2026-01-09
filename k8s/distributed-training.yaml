@@ -16,12 +16,12 @@ spec:
         spec:
           nodeSelector:
             nvidia.com/gpu.product: A100-SXM4-80GB
-          
+
           tolerations:
           - key: "nvidia.com/gpu"
             operator: "Exists"
             effect: "NoSchedule"
-          
+
           volumes:
           - name: checkpoint-storage
             persistentVolumeClaim:
@@ -33,7 +33,7 @@ spec:
             emptyDir:
               medium: Memory
               sizeLimit: 64Gi
-          
+
           containers:
           - name: pytorch
             image: ghcr.io/your-org/ai-research-platform-training:latest
@@ -41,7 +41,7 @@ spec:
             args:
               - "--config"
               - "configs/train-small.yaml"
-            
+
             resources:
               requests:
                 cpu: "16"
@@ -51,7 +51,7 @@ spec:
                 cpu: "32"
                 memory: "256Gi"
                 nvidia.com/gpu: "8"
-            
+
             env:
             - name: NCCL_DEBUG
               value: "INFO"
@@ -61,7 +61,7 @@ spec:
               value: "0"
             - name: NCCL_NET_GDR_LEVEL
               value: "5"
-            
+
             volumeMounts:
             - name: checkpoint-storage
               mountPath: /workspace/outputs
@@ -69,11 +69,11 @@ spec:
               mountPath: /workspace/data
             - name: dshm
               mountPath: /dev/shm
-            
+
             ports:
             - containerPort: 29500
               name: master
-    
+
     Worker:
       replicas: 3
       restartPolicy: OnFailure
@@ -85,7 +85,7 @@ spec:
         spec:
           nodeSelector:
             nvidia.com/gpu.product: A100-SXM4-80GB
-          
+
           tolerations:
           - key: "nvidia.com/gpu"
             operator: "Exists"
@@ -93,7 +93,7 @@ spec:
           - key: "node.kubernetes.io/spot"
             operator: "Exists"
             effect: "NoSchedule"
-          
+
           volumes:
           - name: checkpoint-storage
             persistentVolumeClaim:
@@ -105,7 +105,7 @@ spec:
             emptyDir:
               medium: Memory
               sizeLimit: 64Gi
-          
+
           containers:
           - name: pytorch
             image: ghcr.io/your-org/ai-research-platform-training:latest
@@ -113,7 +113,7 @@ spec:
             args:
               - "--config"
               - "configs/train-small.yaml"
-            
+
             resources:
               requests:
                 cpu: "16"
@@ -123,7 +123,7 @@ spec:
                 cpu: "32"
                 memory: "256Gi"
                 nvidia.com/gpu: "8"
-            
+
             env:
             - name: NCCL_DEBUG
               value: "INFO"
@@ -131,7 +131,7 @@ spec:
               value: "eth0"
             - name: NCCL_IB_DISABLE
               value: "0"
-            
+
             volumeMounts:
             - name: checkpoint-storage
               mountPath: /workspace/outputs

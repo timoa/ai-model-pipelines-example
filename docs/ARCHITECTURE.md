@@ -221,7 +221,7 @@ Training Job:
     - Memory: 128-256 GB
     - GPU: 8x A100 (80GB)
     - Storage: 500GB (checkpoints) + 1TB (data)
-  
+
   Optimizations:
     - GPU time-slicing for dev workloads
     - Spot instances for cost savings
