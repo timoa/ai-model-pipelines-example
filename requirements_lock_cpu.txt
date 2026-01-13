@@ -44,7 +44,7 @@ dill==0.3.7
     # via
     #   datasets
     #   multiprocess
-filelock==3.20.2
+filelock==3.20.3
     # via
     #   datasets
     #   huggingface-hub
