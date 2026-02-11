@@ -157,7 +157,7 @@ pandas==2.1.4
     #   datasets
 pathspec==1.0.1
     # via black
-pillow==12.1.0
+pillow==12.1.1
     # via
     #   matplotlib
     #   torchvision
